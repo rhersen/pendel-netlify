@@ -1,6 +1,6 @@
 const request = require('request')
 
-export async function handler(event, context, callback) {
+export function handler(event, context, callback) {
   request.post('http://api.trafikinfo.trafikverket.se/v1.2/data.json', {
     body: `
 <REQUEST>

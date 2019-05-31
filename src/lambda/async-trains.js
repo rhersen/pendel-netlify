@@ -1,14 +1,8 @@
-import fetch from "node-fetch"
+const request = require('request')
 
-export async function handler() {
-  try {
-    const response = await fetch("http://api.trafikinfo.trafikverket.se/v1.2/data.json",
-      {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/xml'
-        },
-        body: `
+export async function handler(event, context, callback) {
+  request.post('http://api.trafikinfo.trafikverket.se/v1.2/data.json', {
+    body: `
 <REQUEST>
   <LOGIN authenticationkey='${process.env.TRAFIKVERKET_API_KEY}' />
   <QUERY objecttype='TrainAnnouncement'>
@@ -22,21 +16,17 @@ export async function handler() {
     </FILTER>
     <INCLUDE>AdvertisedTrainIdent</INCLUDE>
   </QUERY>
-</REQUEST>`
-      })
-    if (!response.ok) {
-      return {statusCode: response.status, body: response.statusText}
+</REQUEST>`, headers: {
+      'Content-Type': 'application/xml'
     }
-    const data = await response.json()
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify(data.RESPONSE.RESULT[0])
+  }, (error, res) => {
+    if (error) {
+      callback(error)
+      return
     }
-  } catch (err) {
-    console.log(err) // output to netlify function log
-    return {
-      statusCode: 500, body: JSON.stringify({msg: err.message})
-    }
-  }
+    console.log(`statusCode: ${res.statusCode}`)
+    callback(null, {
+      statusCode: 200, body: res.body
+    })
+  })
 }

@@ -11,7 +11,7 @@ export function handler(event, context, callback) {
     <FILTER>
       <AND>
         <IN name='ProductInformation' value='Pendeltåg' />
-        <EQ name='AdvertisedTrainIdent' value='2318' />
+        <EQ name='AdvertisedTrainIdent' value='${event.queryStringParameters.train}' />
         <GT name='AdvertisedTimeAtLocation' value='$dateadd(-6:00:00)' />
         <LT name='AdvertisedTimeAtLocation' value='$dateadd(6:00:00)' />
       </AND>

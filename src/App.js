@@ -13,18 +13,39 @@ class LambdaDemo extends Component {
     this.setState({ loading: true })
     fetch("/.netlify/functions/" + api)
       .then(response => response.json())
-      .then(json => this.setState({ loading: false, trains: json.RESPONSE.RESULT[0].TrainAnnouncement }))
+      .then(json =>
+        this.setState({
+          loading: false,
+          trains: json.RESPONSE.RESULT[0].TrainAnnouncement
+        })
+      )
   }
 
   render() {
     const { loading, trains } = this.state
 
     return (
-      <p>
-        <button onClick={this.handleClick("async-trains")}>{loading ? "Loading..." : "Call Async Lambda"}</button>
-        <br />
-        <ol>{trains.map(train => <li>{train.AdvertisedTrainIdent}</li>)}</ol>
-      </p>
+      <div>
+        <button onClick={this.handleClick("async-trains")}>
+          {loading ? "Loading..." : "Call Async Lambda"}
+        </button>
+        <table>
+          <tbody>
+            {trains.map(train => (
+              <tr key={train.LocationSignature + train.ActivityType}>
+                <td>{train.AdvertisedTrainIdent}</td>
+                <td>{train.ToLocation.map(loc => loc.LocationName).join()}</td>
+                <td>{train.ActivityType}</td>
+                <td>{train.LocationSignature}</td>
+                <td>{train.AdvertisedTimeAtLocation.substring(11)}</td>
+                <td>
+                  {train.TimeAtLocation && train.TimeAtLocation.substring(11)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     )
   }
 }

@@ -1,17 +1,17 @@
 import React, { Component } from "react"
 import "./App.css"
 
-class LambdaDemo extends Component {
+class App extends Component {
   constructor(props) {
     super(props)
     this.state = { loading: false, trains: [] }
   }
 
-  handleClick = api => e => {
+  handleClick = (type, id) => e => {
     e.preventDefault()
 
-    this.setState({ loading: true })
-    fetch("/.netlify/functions/" + api + "?train=2751")
+    this.setState({ loading: true, trains: [] })
+    fetch(`/.netlify/functions/async-trains?${type}=${id}`)
       .then(response => response.json())
       .then(json =>
         this.setState({
@@ -26,40 +26,34 @@ class LambdaDemo extends Component {
 
     return (
       <div>
-        <button onClick={this.handleClick("async-trains")}>
+        <button onClick={this.handleClick("station", "Sst")}>
           {loading ? "Loading..." : "Call Async Lambda"}
         </button>
         <table>
           <tbody>
             {trains.map(train => (
               <tr key={train.LocationSignature + train.ActivityType}>
-                <td>{train.AdvertisedTrainIdent}</td>
-                <td>{train.ToLocation.map(loc => loc.LocationName).join()}</td>
-                <td>{train.ActivityType}</td>
-                <td>{train.LocationSignature}</td>
-                <td>{train.AdvertisedTimeAtLocation.substring(11)}</td>
+                <td
+                  onClick={this.handleClick(
+                    "train",
+                    train.AdvertisedTrainIdent
+                  )}
+                >
+                  {train.AdvertisedTrainIdent}
+                </td>
                 <td>
-                  {train.TimeAtLocation && train.TimeAtLocation.substring(11)}
+                  {(train.ToLocation || []).map(loc => loc.LocationName).join()}
+                </td>
+                <td>{train.AdvertisedTimeAtLocation.substring(11)}</td>
+                <td
+                  onClick={this.handleClick("station", train.LocationSignature)}
+                >
+                  {train.LocationSignature}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-      </div>
-    )
-  }
-}
-
-class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <LambdaDemo />
-        </header>
       </div>
     )
   }
